@@ -1,0 +1,489 @@
+{
+    "texts": [
+        {
+            "id": 0,
+            "row_min": 11,
+            "column_min": 342,
+            "height": 12,
+            "column_max": 373,
+            "content": "FAK",
+            "width": 31,
+            "row_max": 23
+        },
+        {
+            "id": 1,
+            "row_min": 10,
+            "column_min": 92,
+            "height": 41,
+            "column_max": 188,
+            "content": "fo",
+            "width": 96,
+            "row_max": 51
+        },
+        {
+            "id": 2,
+            "row_min": 16,
+            "column_min": 987,
+            "height": 31,
+            "column_max": 1055,
+            "content": "3:17",
+            "width": 68,
+            "row_max": 47
+        },
+        {
+            "id": 3,
+            "row_min": 110,
+            "column_min": 172,
+            "height": 33,
+            "column_max": 249,
+            "content": "stuff",
+            "width": 77,
+            "row_max": 143
+        },
+        {
+            "id": 4,
+            "row_min": 106,
+            "column_min": 928,
+            "height": 45,
+            "column_max": 1049,
+            "content": "Cancel",
+            "width": 121,
+            "row_max": 151
+        },
+        {
+            "id": 5,
+            "row_min": 239,
+            "column_min": 226,
+            "height": 36,
+            "column_max": 613,
+            "content": "Stuff You Should Know",
+            "width": 387,
+            "row_max": 275
+        },
+        {
+            "id": 6,
+            "row_min": 254,
+            "column_min": 65,
+            "height": 18,
+            "column_max": 119,
+            "content": "STUFF",
+            "width": 54,
+            "row_max": 272
+        },
+        {
+            "id": 7,
+            "row_min": 274,
+            "column_min": 66,
+            "height": 17,
+            "column_max": 193,
+            "content": "YOU SHOULD",
+            "width": 127,
+            "row_max": 291
+        },
+        {
+            "id": 8,
+            "row_min": 293,
+            "column_min": 67,
+            "height": 18,
+            "column_max": 132,
+            "content": "KNOW",
+            "width": 65,
+            "row_max": 311
+        },
+        {
+            "id": 9,
+            "row_min": 306,
+            "column_min": 250,
+            "height": 30,
+            "column_max": 327,
+            "content": "+ 26.7k",
+            "width": 77,
+            "row_max": 336
+        },
+        {
+            "id": 10,
+            "row_min": 306,
+            "column_min": 412,
+            "height": 29,
+            "column_max": 483,
+            "content": "665.Ok",
+            "width": 71,
+            "row_max": 335
+        },
+        {
+            "id": 11,
+            "row_min": 327,
+            "column_min": 66,
+            "height": 16,
+            "column_max": 146,
+            "content": "PODCAST",
+            "width": 80,
+            "row_max": 343
+        },
+        {
+            "id": 12,
+            "row_min": 423,
+            "column_min": 226,
+            "height": 47,
+            "column_max": 776,
+            "content": "Stuff You Missed in History Class",
+            "width": 550,
+            "row_max": 470
+        },
+        {
+            "id": 13,
+            "row_min": 464,
+            "column_min": 154,
+            "height": 18,
+            "column_max": 186,
+            "content": "STUFF",
+            "width": 32,
+            "row_max": 482
+        },
+        {
+            "id": 14,
+            "row_min": 491,
+            "column_min": 227,
+            "height": 31,
+            "column_max": 328,
+            "content": "& + 13.7k",
+            "width": 101,
+            "row_max": 522
+        },
+        {
+            "id": 15,
+            "row_min": 491,
+            "column_min": 412,
+            "height": 29,
+            "column_max": 483,
+            "content": "274.Ok",
+            "width": 71,
+            "row_max": 520
+        },
+        {
+            "id": 16,
+            "row_min": 508,
+            "column_min": 62,
+            "height": 12,
+            "column_max": 141,
+            "content": "YOU MISSED IN",
+            "width": 79,
+            "row_max": 520
+        },
+        {
+            "id": 17,
+            "row_min": 519,
+            "column_min": 61,
+            "height": 20,
+            "column_max": 204,
+            "content": "HISTORY CLASS",
+            "width": 143,
+            "row_max": 539
+        },
+        {
+            "id": 18,
+            "row_min": 611,
+            "column_min": 119,
+            "height": 43,
+            "column_max": 198,
+            "content": "BLOW stuff YOUR to",
+            "width": 79,
+            "row_max": 654
+        },
+        {
+            "id": 19,
+            "row_min": 611,
+            "column_min": 226,
+            "height": 35,
+            "column_max": 634,
+            "content": "Stuff To Blow Your Mind",
+            "width": 408,
+            "row_max": 646
+        },
+        {
+            "id": 20,
+            "row_min": 654,
+            "column_min": 98,
+            "height": 32,
+            "column_max": 196,
+            "content": "MIND",
+            "width": 98,
+            "row_max": 686
+        },
+        {
+            "id": 21,
+            "row_min": 676,
+            "column_min": 252,
+            "height": 30,
+            "column_max": 327,
+            "content": "+ 12.7k",
+            "width": 75,
+            "row_max": 706
+        },
+        {
+            "id": 22,
+            "row_min": 678,
+            "column_min": 413,
+            "height": 29,
+            "column_max": 483,
+            "content": "190.4k",
+            "width": 70,
+            "row_max": 707
+        },
+        {
+            "id": 23,
+            "row_min": 801,
+            "column_min": 93,
+            "height": 68,
+            "column_max": 187,
+            "content": "AUDIO STUFF DON THEY WANT KNOW YOU TO",
+            "width": 94,
+            "row_max": 869
+        },
+        {
+            "id": 24,
+            "row_min": 794,
+            "column_min": 226,
+            "height": 44,
+            "column_max": 937,
+            "content": "Stuff They Don't Want You To Know Audio",
+            "width": 711,
+            "row_max": 838
+        },
+        {
+            "id": 25,
+            "row_min": 862,
+            "column_min": 250,
+            "height": 29,
+            "column_max": 313,
+            "content": "+ 3.4k",
+            "width": 63,
+            "row_max": 891
+        },
+        {
+            "id": 26,
+            "row_min": 863,
+            "column_min": 398,
+            "height": 29,
+            "column_max": 456,
+            "content": "72.2k",
+            "width": 58,
+            "row_max": 892
+        },
+        {
+            "id": 27,
+            "row_min": 990,
+            "column_min": 82,
+            "height": 13,
+            "column_max": 157,
+            "content": "stuff mom",
+            "width": 75,
+            "row_max": 1003
+        },
+        {
+            "id": 28,
+            "row_min": 1001,
+            "column_min": 65,
+            "height": 55,
+            "column_max": 198,
+            "content": "never told you",
+            "width": 133,
+            "row_max": 1056
+        },
+        {
+            "id": 29,
+            "row_min": 981,
+            "column_min": 226,
+            "height": 38,
+            "column_max": 671,
+            "content": "Stuff Mom Never Told You",
+            "width": 445,
+            "row_max": 1019
+        },
+        {
+            "id": 30,
+            "row_min": 1054,
+            "column_min": 147,
+            "height": 18,
+            "column_max": 191,
+            "content": "audio",
+            "width": 44,
+            "row_max": 1072
+        },
+        {
+            "id": 31,
+            "row_min": 1047,
+            "column_min": 225,
+            "height": 29,
+            "column_max": 313,
+            "content": "2+ 2.Ok",
+            "width": 88,
+            "row_max": 1076
+        },
+        {
+            "id": 32,
+            "row_min": 1048,
+            "column_min": 398,
+            "height": 28,
+            "column_max": 456,
+            "content": "48.5k",
+            "width": 58,
+            "row_max": 1076
+        },
+        {
+            "id": 33,
+            "row_min": 1138,
+            "column_min": 67,
+            "height": 44,
+            "column_max": 204,
+            "content": "PURPLE PODCAST STUFF",
+            "width": 137,
+            "row_max": 1182
+        },
+        {
+            "id": 34,
+            "row_min": 1164,
+            "column_min": 223,
+            "height": 42,
+            "column_max": 641,
+            "content": "The Purple Stuff Podcast",
+            "width": 418,
+            "row_max": 1206
+        },
+        {
+            "id": 35,
+            "row_min": 1232,
+            "column_min": 252,
+            "height": 31,
+            "column_max": 308,
+            "content": "+ 949",
+            "width": 56,
+            "row_max": 1263
+        },
+        {
+            "id": 36,
+            "row_min": 1233,
+            "column_min": 393,
+            "height": 28,
+            "column_max": 463,
+            "content": "625.3k",
+            "width": 70,
+            "row_max": 1261
+        },
+        {
+            "id": 37,
+            "row_min": 1316,
+            "column_min": 47,
+            "height": 154,
+            "column_max": 206,
+            "content": "CATHO STUFF . KNOW YOU SHOULO",
+            "width": 159,
+            "row_max": 1470
+        },
+        {
+            "id": 38,
+            "row_min": 1352,
+            "column_min": 226,
+            "height": 33,
+            "column_max": 759,
+            "content": "Catholic Stuff You Should Know",
+            "width": 533,
+            "row_max": 1385
+        },
+        {
+            "id": 39,
+            "row_min": 1418,
+            "column_min": 227,
+            "height": 28,
+            "column_max": 308,
+            "content": "2+ 683",
+            "width": 81,
+            "row_max": 1446
+        },
+        {
+            "id": 40,
+            "row_min": 1418,
+            "column_min": 393,
+            "height": 28,
+            "column_max": 436,
+            "content": "8.8k",
+            "width": 43,
+            "row_max": 1446
+        },
+        {
+            "id": 41,
+            "row_min": 1536,
+            "column_min": 110,
+            "height": 14,
+            "column_max": 152,
+            "content": "STUFE",
+            "width": 42,
+            "row_max": 1550
+        },
+        {
+            "id": 42,
+            "row_min": 1548,
+            "column_min": 91,
+            "height": 45,
+            "column_max": 166,
+            "content": "THEY DONT WANT YOU TO KNOW",
+            "width": 75,
+            "row_max": 1593
+        },
+        {
+            "id": 43,
+            "row_min": 1534,
+            "column_min": 226,
+            "height": 45,
+            "column_max": 830,
+            "content": "Stuff They Don't Want You To Know",
+            "width": 604,
+            "row_max": 1579
+        },
+        {
+            "id": 44,
+            "row_min": 1602,
+            "column_min": 251,
+            "height": 29,
+            "column_max": 314,
+            "content": "+ 1.1k",
+            "width": 63,
+            "row_max": 1631
+        },
+        {
+            "id": 45,
+            "row_min": 1603,
+            "column_min": 399,
+            "height": 28,
+            "column_max": 442,
+            "content": "5.4k",
+            "width": 43,
+            "row_max": 1631
+        },
+        {
+            "id": 46,
+            "row_min": 1638,
+            "column_min": 61,
+            "height": 22,
+            "column_max": 204,
+            "content": "howstuffworks.com",
+            "width": 143,
+            "row_max": 1660
+        },
+        {
+            "id": 47,
+            "row_min": 1708,
+            "column_min": 114,
+            "height": 16,
+            "column_max": 152,
+            "content": "THE",
+            "width": 38,
+            "row_max": 1724
+        }
+    ],
+    "img_shape": [
+        1920,
+        1080,
+        3
+    ]
+}
