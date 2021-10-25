@@ -5,6 +5,8 @@ import json
 import time
 import os
 from os.path import join as pjoin
+import numpy as np
+from paddleocr import PaddleOCR, draw_ocr
 
 
 def save_detection_json(file_path, texts, img_shape):
@@ -133,3 +135,30 @@ def text_detection(input_file='../data/input/30800.jpg', output_file='../data/ou
 
 # text_detection()
 
+
+def text_cvt_orc_format_paddle(paddle_result):
+    texts = []
+    for i, line in enumerate(paddle_result):
+        points = np.array(line[0])
+        location = {'left': int(min(points[:, 0])), 'top': int(min(points[:, 1])), 'right': int(max(points[:, 0])),
+                    'bottom': int(max(points[:, 1]))}
+        content = line[1][0]
+        texts.append(Text(i, content, location))
+    return texts
+
+
+def text_detection_paddle(input_file='../data/input/30800.jpg', output_file='../data/output', show=False):
+    start = time.clock()
+    name = input_file.split('/')[-1][:-4]
+    ocr_root = pjoin(output_file, 'ocr')
+    img = cv2.imread(input_file)
+
+    paddle_cor = PaddleOCR(use_angle_cls=True, lang="ch")
+    result = paddle_cor.ocr(input_file, cls=True)
+    texts = text_cvt_orc_format_paddle(result)
+
+    visualize_texts(img, texts, shown_resize_height=800, show=show, write_path=pjoin(ocr_root, name+'.png'))
+    save_detection_json(pjoin(ocr_root, name+'.json'), texts, img.shape)
+    print("[Text Detection Completed in %.3f s] Input: %s Output: %s" % (time.clock() - start, input_file, pjoin(ocr_root, name+'.json')))
+
+    return texts

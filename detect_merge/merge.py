@@ -90,6 +90,7 @@ def refine_elements(compos, texts, intersection_bias=(2, 2), containment_ratio=0
         is_valid = True
         text_area = 0
         for text in texts:
+            # ioa: inter / compo_area; inter / iob: text_area
             inter, iou, ioa, iob = compo.calc_intersection_area(text, bias=intersection_bias)
             if inter > 0:
                 # the non-text is contained in the text compo
@@ -98,7 +99,7 @@ def refine_elements(compos, texts, intersection_bias=(2, 2), containment_ratio=0
                     break
                 text_area += inter
                 # the text is contained in the non-text compo
-                if iob >= containment_ratio and compo.category != 'Block':
+                if iob >= containment_ratio and ioa >= 0.5 and compo.category != 'Block':
                     contained_texts.append(text)
         if is_valid and text_area / compo.area < containment_ratio:
             # for t in contained_texts:
@@ -137,9 +138,11 @@ def remove_top_bar(elements, img_height):
 
 def remove_bottom_bar(elements, img_height):
     new_elements = []
+    max_height = img_height * 0.04
+    bottom_thresh = img_height * 0.95
     for ele in elements:
         # parameters for 800-height GUI
-        if ele.row_min > 750 and 20 <= ele.height <= 30 and 20 <= ele.width <= 30:
+        if ele.row_min > bottom_thresh and ele.height < max_height and ele.width < max_height:
             continue
         new_elements.append(ele)
     return new_elements
