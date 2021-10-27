@@ -6,7 +6,7 @@ import time
 import os
 from os.path import join as pjoin
 import numpy as np
-from paddleocr import PaddleOCR, draw_ocr
+from paddleocr import PaddleOCR
 
 
 def save_detection_json(file_path, texts, img_shape):
@@ -37,6 +37,7 @@ def visualize_texts(org_img, texts, shown_resize_height=None, show=False, write_
         cv2.destroyWindow('texts')
     if write_path is not None:
         cv2.imwrite(write_path, img)
+    return img
 
 
 def text_sentences_recognition(texts):
@@ -147,18 +148,19 @@ def text_cvt_orc_format_paddle(paddle_result):
     return texts
 
 
-def text_detection_paddle(input_file='../data/input/30800.jpg', output_file='../data/output', show=False):
+def text_detection_paddle(input_file='../data/input/30800.jpg', output_file='../data/output', show=False, paddle_cor=None):
     start = time.clock()
-    name = input_file.split('/')[-1][:-4]
+    name = input_file.replace('\\', '/').split('/')[-1][:-4]
     ocr_root = pjoin(output_file, 'ocr')
     img = cv2.imread(input_file)
 
-    paddle_cor = PaddleOCR(use_angle_cls=True, lang="ch")
+    if paddle_cor is None:
+        paddle_cor = PaddleOCR(use_angle_cls=True, lang="ch")
     result = paddle_cor.ocr(input_file, cls=True)
     texts = text_cvt_orc_format_paddle(result)
 
-    visualize_texts(img, texts, shown_resize_height=800, show=show, write_path=pjoin(ocr_root, name+'.png'))
+    board = visualize_texts(img, texts, shown_resize_height=800, show=show, write_path=pjoin(ocr_root, name+'.png'))
     save_detection_json(pjoin(ocr_root, name+'.json'), texts, img.shape)
     print("[Text Detection Completed in %.3f s] Input: %s Output: %s" % (time.clock() - start, input_file, pjoin(ocr_root, name+'.json')))
 
-    return texts
+    return board
