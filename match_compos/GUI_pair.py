@@ -70,12 +70,14 @@ class GUIPair:
             c = Compo('a' + str(i), compo['class'], compo['position'], self.det_result_data_android['img_shape'])
             if compo['class'] == 'Text':
                 c.text_content = compo['text_content']
+            c.get_clip(self.img_android)
             self.compos_android.append(c)
 
         for i, compo in enumerate(self.det_result_data_ios['compos']):
             c = Compo('i' + str(i), compo['class'], compo['position'], self.det_result_data_ios['img_shape'])
             if compo['class'] == 'Text':
                 c.text_content = compo['text_content']
+            c.get_clip(self.img_ios)
             self.compos_ios.append(c)
 
     def show_detection_result(self):
