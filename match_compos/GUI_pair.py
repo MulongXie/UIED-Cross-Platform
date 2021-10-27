@@ -94,30 +94,22 @@ class GUIPair:
         cv2.waitKey()
         cv2.destroyAllWindows()
 
-    def draw_detection_result(self):
+    def draw_detection_result(self, show_id=True):
         '''
         Draw detected compos based on det_result_data
         '''
         color_map = {'Compo': (0,255,0), 'Text': (0,0,255)}
 
-        def resize_bbox(bbox, resize_ratio):
-            for key in bbox:
-                bbox[key] = int(bbox[key] * resize_ratio)
-
         ratio = self.img_android.shape[0] / self.det_result_data_android['img_shape'][0]
         board = self.img_android.copy()
-        for i, compo in enumerate(self.det_result_data_android['compos']):
-            resize_bbox(compo['position'], ratio)
-            pos = compo['position']
-            cv2.rectangle(board, (pos['column_min'], pos['row_min']), (pos['column_max'], pos['row_max']), color_map[compo['class']], 2)
+        for i, compo in enumerate(self.compos_android):
+            compo.draw_compo(board, ratio, color_map[compo.category], show_id=show_id)
         self.det_result_imgs_android['merge'] = board.copy()
 
         ratio = self.img_ios.shape[0] / self.det_result_data_ios['img_shape'][0]
         board = self.img_ios.copy()
-        for i, compo in enumerate(self.det_result_data_ios['compos']):
-            resize_bbox(compo['position'], ratio)
-            pos = compo['position']
-            cv2.rectangle(board, (pos['column_min'], pos['row_min']), (pos['column_max'], pos['row_max']), color_map[compo['class']], 2)
+        for i, compo in enumerate(self.compos_ios):
+            compo.draw_compo(board, ratio, color_map[compo.category], show_id=show_id)
         self.det_result_imgs_ios['merge'] = board.copy()
 
     def save_clips(self):
