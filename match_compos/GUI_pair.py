@@ -66,15 +66,16 @@ class GUIPair:
         Convert detection result to Compo objects
         @ det_result_data: {'compos':[], 'img_shape'}
         '''
+        class_map = {'Text': 't', 'Compo': 'c'}
         for i, compo in enumerate(self.det_result_data_android['compos']):
-            c = Compo('a' + str(i), compo['class'], compo['position'], self.det_result_data_android['img_shape'])
+            c = Compo('a' + str(i) + class_map[compo['class']], compo['class'], compo['position'], self.det_result_data_android['img_shape'])
             if compo['class'] == 'Text':
                 c.text_content = compo['text_content']
             c.get_clip(self.img_android)
             self.compos_android.append(c)
 
         for i, compo in enumerate(self.det_result_data_ios['compos']):
-            c = Compo('i' + str(i), compo['class'], compo['position'], self.det_result_data_ios['img_shape'])
+            c = Compo('i' + str(i) + class_map[compo['class']], compo['class'], compo['position'], self.det_result_data_ios['img_shape'])
             if compo['class'] == 'Text':
                 c.text_content = compo['text_content']
             c.get_clip(self.img_ios)
@@ -118,3 +119,18 @@ class GUIPair:
             pos = compo['position']
             cv2.rectangle(board, (pos['column_min'], pos['row_min']), (pos['column_max'], pos['row_max']), color_map[compo['class']], 2)
         self.det_result_imgs_ios['merge'] = board.copy()
+
+    def save_clips(self):
+        clip_dir = pjoin(self.output_dir, 'clip')
+        clip_dir_android = pjoin(clip_dir, ' android')
+        clip_dir_ios = pjoin(clip_dir, ' ios')
+        os.makedirs(clip_dir, exist_ok=True)
+        os.makedirs(clip_dir_android, exist_ok=True)
+        os.makedirs(clip_dir_ios, exist_ok=True)
+
+        for compo in self.compos_android:
+            name = pjoin(clip_dir_android, compo.id + '.jpg')
+            cv2.imwrite(name, compo.clip)
+        for compo in self.compos_ios:
+            name = pjoin(clip_dir_ios, compo.id + '.jpg')
+            cv2.imwrite(name, compo.clip)
