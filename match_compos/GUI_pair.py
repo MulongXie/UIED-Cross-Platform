@@ -2,6 +2,7 @@ import cv2
 import json
 import os
 from os.path import join as pjoin
+from match_compos.Compo import Compo
 
 
 class GUIPair:
@@ -11,15 +12,19 @@ class GUIPair:
         self.input_dir = input_dir
         self.output_dir = output_dir
 
+        # for android GUI
         self.img_path_android = pjoin(input_dir, 'A' + ui_name + '.jpg')
         self.img_android = cv2.imread(self.img_path_android)
         self.det_result_imgs_android = {'text': None, 'non-text': None, 'merge': None}  # image visualization for different stages
         self.det_result_data_android = None  # {'compos':[], 'img_shape'}
-
+        # for ios GUI
         self.img_path_ios = pjoin(input_dir, 'I' + ui_name + '.png')
         self.img_ios = cv2.imread(self.img_path_ios)
         self.det_result_imgs_ios = {'text': None, 'non-text': None, 'merge': None}      # image visualization for different stages
         self.det_result_data_ios = None     # {'compos':[], 'img_shape'}
+
+        self.compos_android = []    # list of Compo objects for android UI
+        self.compos_ios = []        # list of Compo objects for ios UI
 
     def component_detection(self, is_text=True, is_nontext=True, is_merge=True):
         if is_text:
@@ -35,13 +40,16 @@ class GUIPair:
             self.det_result_imgs_ios['non-text'] = ip.compo_detection(self.img_path_ios, self.output_dir, key_params)
         if is_merge:
             import detect_merge.merge as merge
+            # for android GUI
             compo_path = pjoin(self.output_dir, 'ip', 'A' + str(self.ui_name) + '.json')
             ocr_path = pjoin(self.output_dir, 'ocr', 'A' + str(self.ui_name) + '.json')
             self.det_result_imgs_android['merge'], self.det_result_data_android = merge.merge(self.img_path_android, compo_path, ocr_path, pjoin(self.output_dir, 'merge'), is_remove_bar=True, is_paragraph=False)
-
+            # for ios GUI
             compo_path = pjoin(self.output_dir, 'ip', 'I' + str(self.ui_name) + '.json')
             ocr_path = pjoin(self.output_dir, 'ocr', 'I' + str(self.ui_name) + '.json')
             self.det_result_imgs_ios['merge'], self.det_result_data_ios = merge.merge(self.img_path_ios, compo_path, ocr_path, pjoin(self.output_dir, 'merge'), is_remove_bar=True, is_paragraph=False)
+            # convert compos as Compo objects
+            self.cvt_compos()
 
     def load_detection_result(self, data_path_android=None, data_path_ios=None):
         if not data_path_android:
@@ -50,6 +58,25 @@ class GUIPair:
             data_path_ios = pjoin(self.output_dir, 'merge', 'I' + self.ui_name + '.json')
         self.det_result_data_android = json.load(open(data_path_android))
         self.det_result_data_ios = json.load(open(data_path_ios))
+        # convert compos as Compo objects
+        self.cvt_compos()
+
+    def cvt_compos(self):
+        '''
+        Convert detection result to Compo objects
+        @ det_result_data: {'compos':[], 'img_shape'}
+        '''
+        for i, compo in enumerate(self.det_result_data_android['compos']):
+            c = Compo('a' + str(i), compo['class'], compo['position'], self.det_result_data_android['img_shape'])
+            if compo['class'] == 'Text':
+                c.text_content = compo['text_content']
+            self.compos_android.append(c)
+
+        for i, compo in enumerate(self.det_result_data_ios['compos']):
+            c = Compo('i' + str(i), compo['class'], compo['position'], self.det_result_data_ios['img_shape'])
+            if compo['class'] == 'Text':
+                c.text_content = compo['text_content']
+            self.compos_ios.append(c)
 
     def show_detection_result(self):
         if self.det_result_imgs_android['merge']:

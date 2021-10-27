@@ -2,12 +2,12 @@ class Compo:
     def __init__(self, compo_id, category, position, img_size, text_content=None):
         self.id = compo_id
         self.category = category
-        self.col_min, self.row_min, self.col_max, self.row_max = position
+        self.col_min, self.row_min, self.col_max, self.row_max = position['column_min'], position['row_min'], position['column_max'], position['row_max']
         self.width = self.col_max - self.col_min
         self.height = self.row_max - self.row_min
         self.area = self.width * self.height
 
-        self.img_size = img_size
+        self.img_size = img_size    # the size of the resized image while detection
         self.clip = None
 
         self.text_content = text_content
