@@ -3,6 +3,7 @@ import json
 import os
 from os.path import join as pjoin
 from match_compos.Compo import Compo
+import match_compos.matching as match
 
 
 class GUIPair:
