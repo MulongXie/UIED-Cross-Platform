@@ -25,6 +25,7 @@ class GUIPair:
 
         self.compos_android = []    # list of Compo objects for android UI
         self.compos_ios = []        # list of Compo objects for ios UI
+        self.compos_mapping = {}    # {'id': Compo}
 
     def component_detection(self, is_text=True, is_nontext=True, is_merge=True):
         if is_text:
@@ -68,24 +69,26 @@ class GUIPair:
         '''
         class_map = {'Text': 't', 'Compo': 'c'}
         for i, compo in enumerate(self.det_result_data_android['compos']):
-            c = Compo('a' + str(i) + class_map[compo['class']], compo['class'], compo['position'], self.det_result_data_android['img_shape'])
+            c = Compo('a' + str(i) + class_map[compo['class']], 'android', compo['class'], compo['position'], self.det_result_data_android['img_shape'])
             if compo['class'] == 'Text':
                 c.text_content = compo['text_content']
             c.get_clip(self.img_android)
             self.compos_android.append(c)
+            self.compos_mapping[c.id] = c
 
         for i, compo in enumerate(self.det_result_data_ios['compos']):
-            c = Compo('i' + str(i) + class_map[compo['class']], compo['class'], compo['position'], self.det_result_data_ios['img_shape'])
+            c = Compo('i' + str(i) + class_map[compo['class']], 'ios', compo['class'], compo['position'], self.det_result_data_ios['img_shape'])
             if compo['class'] == 'Text':
                 c.text_content = compo['text_content']
             c.get_clip(self.img_ios)
             self.compos_ios.append(c)
+            self.compos_mapping[c.id] = c
 
     def show_detection_result(self):
-        if self.det_result_imgs_android['merge']:
+        if self.det_result_imgs_android['merge'] is not None:
             cv2.imshow('android', cv2.resize(self.det_result_imgs_android['merge'], (int(self.img_android.shape[1] * (800 / self.img_android.shape[0])), 800)))
             cv2.imshow('ios', cv2.resize(self.det_result_imgs_ios['merge'], (int(self.img_ios.shape[1] * (800 / self.img_ios.shape[0])), 800)))
-        elif self.det_result_data_android:
+        elif self.det_result_data_android is not None:
             self.draw_detection_result()
             cv2.imshow('android', cv2.resize(self.det_result_imgs_android['merge'], (int(self.img_android.shape[1] * (800 / self.img_android.shape[0])), 800)))
             cv2.imshow('ios', cv2.resize(self.det_result_imgs_ios['merge'], (int(self.img_ios.shape[1] * (800 / self.img_ios.shape[0])), 800)))
@@ -114,8 +117,8 @@ class GUIPair:
 
     def save_clips(self):
         clip_dir = pjoin(self.output_dir, 'clip')
-        clip_dir_android = pjoin(clip_dir, ' android')
-        clip_dir_ios = pjoin(clip_dir, ' ios')
+        clip_dir_android = pjoin(clip_dir, 'android')
+        clip_dir_ios = pjoin(clip_dir, 'ios')
         os.makedirs(clip_dir, exist_ok=True)
         os.makedirs(clip_dir_android, exist_ok=True)
         os.makedirs(clip_dir_ios, exist_ok=True)
