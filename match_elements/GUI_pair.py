@@ -2,6 +2,8 @@ import cv2
 import json
 import os
 from os.path import join as pjoin
+from random import randint as rint
+
 from match_elements.Element import Element
 import match_elements.matching as match
 
@@ -24,10 +26,16 @@ class GUIPair:
         self.det_result_imgs_ios = {'text': None, 'non-text': None, 'merge': None}      # image visualization for different stages
         self.det_result_data_ios = None     # {'elements':[], 'img_shape'}
 
-        self.elements_android = []    # list of Element objects for android UI
-        self.elements_ios = []        # list of Element objects for ios UI
-        self.elements_mapping = {}    # {'id': Element}
+        self.elements_android = []          # list of Element objects for android UI
+        self.elements_ios = []              # list of Element objects for ios UI
+        self.elements_mapping = {}          # {'id': Element}
+        self.element_matching_pairs = []    # list of matching similar element pairs: [(ele_android, ele_ios)]
 
+    '''
+    *******************************
+    *** Detect or Load Elements ***
+    *******************************
+    '''
     def element_detection(self, is_text=True, is_nontext=True, is_merge=True):
         if is_text:
             import detect_text.text_detection as text
@@ -63,6 +71,11 @@ class GUIPair:
         # convert elements as Element objects
         self.cvt_elements()
 
+    '''
+    **************************************
+    *** Operations for Element Objects ***
+    **************************************
+    '''
     def cvt_elements(self):
         '''
         Convert detection result to Element objects
@@ -85,6 +98,53 @@ class GUIPair:
             self.elements_ios.append(e)
             self.elements_mapping[e.id] = e
 
+    def save_element_clips(self):
+        clip_dir = pjoin(self.output_dir, 'clip')
+        clip_dir_android = pjoin(clip_dir, 'android')
+        clip_dir_ios = pjoin(clip_dir, 'ios')
+        os.makedirs(clip_dir, exist_ok=True)
+        os.makedirs(clip_dir_android, exist_ok=True)
+        os.makedirs(clip_dir_ios, exist_ok=True)
+
+        for element in self.elements_android:
+            name = pjoin(clip_dir_android, element.id + '.jpg')
+            cv2.imwrite(name, element.clip)
+        for element in self.elements_ios:
+            name = pjoin(clip_dir_ios, element.id + '.jpg')
+            cv2.imwrite(name, element.clip)
+
+    '''
+    ******************************
+    *** Match Similar Elements ***
+    ******************************
+    '''
+    def match_similar_elements(self, min_similarity_img=0.75, min_similarity_text=0.8):
+        for ele_a in self.elements_android:
+            for ele_b in self.elements_ios:
+                # only match elements in the same category
+                if ele_b.matched_element is not None or ele_a.category != ele_b.category:
+                    continue
+                # use different method to calc the similarity of of images and texts
+                if ele_a.category == 'Compo':
+                    # match non-text clip through image similarity
+                    compo_similarity = match.image_similarity(ele_a.clip, ele_b.clip, method='dhash')
+                    if compo_similarity > min_similarity_img:
+                        self.element_matching_pairs.append((ele_a, ele_b))
+                        ele_a.matched_element = ele_b
+                        ele_b.matched_element = ele_a
+                elif ele_a.category == 'Text':
+                    # match text by through string similarity
+                    text_similarity = match.text_similarity(ele_a.text_content, ele_b.text_content)
+                    if text_similarity > min_similarity_text:
+                        self.element_matching_pairs.append((ele_a, ele_b))
+                        ele_a.matched_element = ele_b
+                        ele_b.matched_element = ele_a
+
+    '''
+    *********************
+    *** Visualization ***
+    *********************
+    '''
     def show_detection_result(self):
         if self.det_result_imgs_android['merge'] is not None:
             cv2.imshow('android', cv2.resize(self.det_result_imgs_android['merge'], (int(self.img_android.shape[1] * (800 / self.img_android.shape[0])), 800)))
@@ -116,17 +176,14 @@ class GUIPair:
             element.draw_element(board, ratio, color_map[element.category], show_id=show_id)
         self.det_result_imgs_ios['merge'] = board.copy()
 
-    def save_clips(self):
-        clip_dir = pjoin(self.output_dir, 'clip')
-        clip_dir_android = pjoin(clip_dir, 'android')
-        clip_dir_ios = pjoin(clip_dir, 'ios')
-        os.makedirs(clip_dir, exist_ok=True)
-        os.makedirs(clip_dir_android, exist_ok=True)
-        os.makedirs(clip_dir_ios, exist_ok=True)
-
-        for element in self.elements_android:
-            name = pjoin(clip_dir_android, element.id + '.jpg')
-            cv2.imwrite(name, element.clip)
-        for element in self.elements_ios:
-            name = pjoin(clip_dir_ios, element.id + '.jpg')
-            cv2.imwrite(name, element.clip)
+    def visualize_matched_element_pairs(self, line=-1):
+        board_android = self.img_android.copy()
+        board_ios = self.img_ios.copy()
+        for pair in self.element_matching_pairs:
+            color = (rint(0,255), rint(0,255), rint(0,255))
+            pair[0].draw_element(board_android, color=color, line=line, show_id=False)
+            pair[1].draw_element(board_ios, color=color, line=line, show_id=False)
+        cv2.imshow('android', cv2.resize(board_android, (int(board_android.shape[1] * (800 / board_android.shape[0])), 800)))
+        cv2.imshow('ios', cv2.resize(board_ios, (int(board_ios.shape[1] * (800 / board_ios.shape[0])), 800)))
+        cv2.waitKey()
+        cv2.destroyAllWindows()

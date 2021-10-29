@@ -1,4 +1,5 @@
 import cv2
+from difflib import SequenceMatcher
 
 
 def dhash(image):
@@ -24,10 +25,14 @@ def compare_hash(hash1, hash2):
     return 1 - n / len(hash1)
 
 
-def comp_similarity(img1, img2, method='dhash'):
+def image_similarity(img1, img2, method='dhash'):
     similarity = -1  # from 0 to 1
     if method == 'dhash':
         h1 = dhash(img1)
         h2 = dhash(img2)
         similarity = compare_hash(h1, h2)
     return similarity
+
+
+def text_similarity(text1, text2):
+    return SequenceMatcher(None, text1, text2).ratio()

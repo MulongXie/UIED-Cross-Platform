@@ -4,8 +4,9 @@ import cv2
 class Element:
     def __init__(self, element_id, ui_type, category, position, img_size, text_content=None):
         self.id = element_id
-        self.ui_type = ui_type
         self.category = category
+        self.text_content = text_content
+
         self.col_min, self.row_min, self.col_max, self.row_max = int(position['column_min']), int(position['row_min']), int(position['column_max']), int(position['row_max'])
         self.width = self.col_max - self.col_min
         self.height = self.row_max - self.row_min
@@ -14,7 +15,8 @@ class Element:
         self.img_size = img_size    # the size of the resized image while detection
         self.clip = None
 
-        self.text_content = text_content
+        self.ui_type = ui_type          # android/ios
+        self.matched_element = None     # the matched Element in another ui
 
     def init_bound(self):
         self.width = self.col_max - self.col_min
