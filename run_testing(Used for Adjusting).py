@@ -39,7 +39,7 @@ if __name__ == '__main__':
                   'max-word-inline-gap':10, 'max-line-gap':4, 'remove-top-bar':True}
 
     # set input image path
-    input_path_img = 'data/input/4.jpg'
+    input_path_img = 'data/input/A1.jpg'
     output_root = 'data/output'
 
     resized_height = resize_height_by_longest_edge(input_path_img)
