@@ -7,7 +7,8 @@ import os
 from os.path import join as pjoin
 import numpy as np
 from paddleocr import PaddleOCR
-
+import requests
+import base64
 
 def save_detection_json(file_path, texts, img_shape):
     f_out = open(file_path, 'w')
@@ -134,9 +135,6 @@ def text_detection(input_file='../data/input/30800.jpg', output_file='../data/ou
     print("[Text Detection Completed in %.3f s] Input: %s Output: %s" % (time.clock() - start, input_file, pjoin(ocr_root, name+'.json')))
 
 
-# text_detection()
-
-
 def text_cvt_orc_format_paddle(paddle_result):
     texts = []
     for i, line in enumerate(paddle_result):
@@ -162,5 +160,39 @@ def text_detection_paddle(input_file='../data/input/30800.jpg', output_file='../
     board = visualize_texts(img, texts, shown_resize_height=800, show=show, write_path=pjoin(ocr_root, name+'.png'))
     save_detection_json(pjoin(ocr_root, name+'.json'), texts, img.shape)
     print("[Text Detection Completed in %.3f s] Input: %s Output: %s" % (time.clock() - start, input_file, pjoin(ocr_root, name+'.json')))
-
     return board
+
+
+def text_detection_longce(input_file='../data/input/A0001.jpg', output_file='../data/output', show=False):
+    post_url = "http://61.177.48.150:5222/ocr/recognition_text"
+    name = input_file.replace('\\', '/').split('/')[-1][:-4]
+    ocr_root = pjoin(output_file, 'ocr')
+    img = cv2.imread(input_file)
+    start = time.clock()
+    retrys = 0
+
+    with open(input_file, "rb") as f:
+        base64_img = base64.b64encode(f.read()).decode('utf8')
+    form_data = json.dumps({
+        "task": "OCR",
+        "image": base64_img,
+        "type": "base64"
+    })
+    # print(input_file)
+    headers = {
+        "Authorization": None,
+        "Content-Type": "application/json"
+    }
+    res_text = list()
+    response = requests.post(url=post_url, headers=headers, data=form_data).text
+    res = json.loads(response)
+    for result in res['data']:
+        if 'words' not in result.keys():
+            continue
+        content = result['words']
+        location = result['location']
+        res_text.append(Text(id = result['index'], content = content, location = location))
+    board = visualize_texts(img, res_text, shown_resize_height=800, show=show, write_path=pjoin(ocr_root, name+'.png'))
+    save_detection_json(pjoin(ocr_root, name+'.json'), res_text, img.shape)
+    print("[Text Detection Completed in %.3f s] Input: %s Output: %s" % (time.clock() - start, input_file, pjoin(ocr_root, name+'.json')))
+    
