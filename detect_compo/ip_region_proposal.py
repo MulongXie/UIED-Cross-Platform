@@ -38,15 +38,18 @@ def nesting_inspection(org, grey, compos, ffl_block):
 
 
 def compo_detection(input_img_path, output_root, uied_params,
-                    resize_by_height=800, classifier=None, show=False, wai_key=0):
+                    adaptive_binarization=False, resize_by_height=800, classifier=None, show=False, wai_key=0):
 
     start = time.clock()
     name = input_img_path.replace('\\', '/').split('/')[-1][:-4]
     ip_root = file.build_directory(pjoin(output_root, "ip"))
 
     # *** Step 1 *** pre-processing: read img -> get binary map
-    org, grey = pre.read_img(input_img_path, resize_by_height)
-    binary = pre.binarization(org, grad_min=int(uied_params['min-grad']))
+    org, gray = pre.read_img(input_img_path, resize_by_height)
+    if adaptive_binarization:
+        binary = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 55, 0)
+    else:
+        binary = pre.binarization(org, grad_min=int(uied_params['min-grad']))
 
     # *** Step 2 *** element detection
     det.rm_line(binary, show=show, wait_key=wai_key)
@@ -62,7 +65,7 @@ def compo_detection(input_img_path, output_root, uied_params,
     Compo.compos_containment(uicompos)
 
     # *** Step 4 ** nesting inspection: check if big compos have nesting element
-    uicompos += nesting_inspection(org, grey, uicompos, ffl_block=uied_params['ffl-block'])
+    uicompos += nesting_inspection(org, gray, uicompos, ffl_block=uied_params['ffl-block'])
     Compo.compos_update(uicompos, org.shape)
     board = draw.draw_bounding_box(org, uicompos, show=show, name='merged compo', write_path=pjoin(ip_root, name + '.jpg'), wait_key=wai_key)
 

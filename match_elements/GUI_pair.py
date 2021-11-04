@@ -46,8 +46,8 @@ class GUIPair:
         if is_nontext:
             import detect_compo.ip_region_proposal as ip
             key_params = {'min-grad': 6, 'ffl-block': 5, 'min-ele-area': 100, 'merge-contained-ele': True, 'resize_by_height': 900}
-            self.det_result_imgs_android['non-text'] = ip.compo_detection(self.img_path_android, self.output_dir, key_params)
-            self.det_result_imgs_ios['non-text'] = ip.compo_detection(self.img_path_ios, self.output_dir, key_params)
+            self.det_result_imgs_android['non-text'] = ip.compo_detection(self.img_path_android, self.output_dir, key_params, adaptive_binarization=False)
+            self.det_result_imgs_ios['non-text'] = ip.compo_detection(self.img_path_ios, self.output_dir, key_params, adaptive_binarization=False)
         if is_merge:
             import detect_merge.merge as merge
             # for android GUI
