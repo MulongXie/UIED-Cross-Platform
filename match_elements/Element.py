@@ -4,7 +4,7 @@ import cv2
 class Element:
     def __init__(self, element_id, ui_type, category, position, img_size, text_content=None):
         self.id = element_id
-        self.category = category
+        self.category = category        # Compo / Text
         self.text_content = text_content
 
         self.col_min, self.row_min, self.col_max, self.row_max = int(position['column_min']), int(position['row_min']), int(position['column_max']), int(position['row_max'])
@@ -12,11 +12,12 @@ class Element:
         self.height = self.row_max - self.row_min
         self.area = self.width * self.height
 
-        self.img_size = img_size    # the size of the resized image while detection
+        self.detection_img_size = img_size    # the size of the resized image while detection
         self.clip = None
 
         self.ui_type = ui_type          # android/ios
         self.matched_element = None     # the matched Element in another ui
+        self.is_popup_modal = False     # if the element is popup modal
 
     def init_bound(self):
         self.width = self.col_max - self.col_min
@@ -24,7 +25,7 @@ class Element:
         self.area = self.width * self.height
 
     def get_clip(self, org_img):
-        ratio = org_img.shape[0] / self.img_size[0]
+        ratio = org_img.shape[0] / self.detection_img_size[0]
         left, right, top, bottom = int(self.col_min * ratio), int(self.col_max * ratio), int(self.row_min * ratio), int(self.row_max * ratio)
         self.clip = org_img[top: bottom, left: right]
 
@@ -33,7 +34,7 @@ class Element:
 
     def draw_element(self, board, ratio=None, color=(0,255,0), line=2, show_id=True, show=False):
         if not ratio:
-            ratio = board.shape[0] / self.img_size[0]
+            ratio = board.shape[0] / self.detection_img_size[0]
         bound = self.resize_bound(ratio)
         cv2.rectangle(board, (bound[0], bound[1]), (bound[2], bound[3]), color, line)
         if show_id:

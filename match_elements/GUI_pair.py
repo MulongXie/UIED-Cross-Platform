@@ -1,6 +1,7 @@
 import cv2
 import json
 import os
+import numpy as np
 from os.path import join as pjoin
 from random import randint as rint
 
@@ -9,12 +10,13 @@ import match_elements.matching as match
 
 
 class GUIPair:
-    def __init__(self, ui_name, input_dir='data/input', output_dir='data/output'):
+    def __init__(self, ui_name, input_dir='data/input', output_dir='data/output', detection_resize_height=900):
 
         self.ui_name = ui_name
         self.input_dir = input_dir
         self.output_dir = output_dir
 
+        self.detection_resize_height = detection_resize_height  # resize the input gui while detecting
         # for android GUI
         self.img_path_android = pjoin(input_dir, 'A' + ui_name + '.jpg')
         self.img_android = cv2.imread(self.img_path_android)
@@ -31,6 +33,59 @@ class GUIPair:
         self.elements_mapping = {}          # {'id': Element}
         self.element_matching_pairs = []    # list of matching similar element pairs: [(ele_android, ele_ios)]
 
+        self.has_popup_modal_android = False        # if the ui has popup modal
+        self.has_popup_modal_ios = False            # if the ui has popup modal
+
+    '''
+    **********************
+    *** GUI Operations ***
+    **********************
+    '''
+    def popup_modal_recognition(self, height_thresh=0.15, width_thresh=0.5):
+        # calculate the mean pixel value as the brightness
+        img_android_resized = cv2.resize(self.img_android, (int(self.img_android.shape[1] * (self.detection_resize_height / self.img_android.shape[0])), self.detection_resize_height))
+        img_ios_resized = cv2.resize(self.img_ios, (int(self.img_ios.shape[1] * (self.detection_resize_height / self.img_ios.shape[0])), self.detection_resize_height))
+        area_resize_a = img_android_resized.shape[0] * img_android_resized.shape[1]
+        area_resize_i = img_ios_resized.shape[0] * img_ios_resized.shape[1]
+
+        sum_gray_a = np.sum(cv2.cvtColor(img_android_resized, cv2.COLOR_BGR2GRAY))
+        sum_gray_i = np.sum(cv2.cvtColor(img_ios_resized, cv2.COLOR_BGR2GRAY))
+
+        if sum_gray_a / (img_android_resized.shape[0] * img_android_resized.shape[1]) < 100:
+            for ele in self.elements_android:
+                if ele.category == 'Compo' and \
+                        ele.height / ele.detection_img_size[0] > height_thresh and ele.width / ele.detection_img_size[1] > width_thresh:
+                    ele.get_clip(img_android_resized)
+                    gray = cv2.cvtColor(ele.clip, cv2.COLOR_BGR2GRAY)
+                    area_ele = ele.clip.shape[0] * ele.clip.shape[1]
+                    # calc the grayscale of the element
+                    sum_gray_ele = np.sum(gray)
+                    mean_gray_ele = sum_gray_ele / area_ele
+                    # calc the grayscale of other region except the element
+                    sum_gray_other = sum_gray_a - sum_gray_ele
+                    mean_gray_other = sum_gray_other / (area_resize_a - area_ele)
+                    # if the element's brightness is far higher than other regions, it should be a pop-up modal
+                    if mean_gray_ele > 180 and mean_gray_other < 80:
+                        self.has_popup_modal_android = True
+                        ele.is_popup_modal = True
+        if sum_gray_i / (img_ios_resized.shape[0] * img_ios_resized.shape[1]) < 100:
+            for ele in self.elements_ios:
+                if ele.category == 'Compo' and \
+                        ele.height / ele.detection_img_size[0] > height_thresh and ele.width / ele.detection_img_size[1] > width_thresh:
+                    ele.get_clip(img_ios_resized)
+                    gray = cv2.cvtColor(ele.clip, cv2.COLOR_BGR2GRAY)
+                    area_ele = ele.clip.shape[0] * ele.clip.shape[1]
+                    # calc the grayscale of the element
+                    sum_gray_ele = np.sum(gray)
+                    mean_gray_ele = sum_gray_ele / area_ele
+                    # calc the grayscale of other region except the element
+                    sum_gray_other = sum_gray_a - sum_gray_ele
+                    mean_gray_other = sum_gray_other / (area_resize_a - area_ele)
+                    # if the element's brightness is far higher than other regions, it should be a pop-up modal
+                    if mean_gray_ele > 180 and mean_gray_other < 80:
+                        self.has_popup_modal_ios = True
+                        ele.is_popup_modal = True
+
     '''
     *******************************
     *** Detect or Load Elements ***
@@ -45,9 +100,9 @@ class GUIPair:
             self.det_result_imgs_ios['text'] = text.text_detection_paddle(self.img_path_ios, self.output_dir, paddle_cor=paddle_cor)
         if is_nontext:
             import detect_compo.ip_region_proposal as ip
-            key_params = {'min-grad': 6, 'ffl-block': 5, 'min-ele-area': 100, 'merge-contained-ele': True, 'resize_by_height': 900}
-            self.det_result_imgs_android['non-text'] = ip.compo_detection(self.img_path_android, self.output_dir, key_params, adaptive_binarization=False)
-            self.det_result_imgs_ios['non-text'] = ip.compo_detection(self.img_path_ios, self.output_dir, key_params, adaptive_binarization=False)
+            key_params = {'min-grad': 6, 'ffl-block': 5, 'min-ele-area': 100, 'merge-contained-ele': True}
+            self.det_result_imgs_android['non-text'] = ip.compo_detection(self.img_path_android, self.output_dir, key_params, resize_by_height=self.detection_resize_height, adaptive_binarization=False)
+            self.det_result_imgs_ios['non-text'] = ip.compo_detection(self.img_path_ios, self.output_dir, key_params, resize_by_height=self.detection_resize_height, adaptive_binarization=False)
         if is_merge:
             import detect_merge.merge as merge
             # for android GUI
@@ -185,5 +240,23 @@ class GUIPair:
             pair[1].draw_element(board_ios, color=color, line=line, show_id=False)
         cv2.imshow('android', cv2.resize(board_android, (int(board_android.shape[1] * (800 / board_android.shape[0])), 800)))
         cv2.imshow('ios', cv2.resize(board_ios, (int(board_ios.shape[1] * (800 / board_ios.shape[0])), 800)))
+        cv2.waitKey()
+        cv2.destroyAllWindows()
+
+    def draw_popup_modal(self):
+        if self.has_popup_modal_android:
+            board_android = self.img_android.copy()
+            for ele in self.elements_android:
+                if ele.is_popup_modal:
+                    ele.draw_element(board_android, color=(0,0,255), line=5, show_id=False)
+            cv2.putText(board_android, 'popup modal', (5, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,255), 3)
+            cv2.imshow('android', cv2.resize(board_android, (int(board_android.shape[1] * (800 / board_android.shape[0])), 800)))
+        if self.has_popup_modal_ios:
+            board_ios = self.img_ios.copy()
+            for ele in self.elements_ios:
+                if ele.is_popup_modal:
+                    ele.draw_element(board_ios, color=(0,0,255), line=5, show_id=False)
+            cv2.putText(board_ios, 'popup modal', (5, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 3)
+            cv2.imshow('ios', cv2.resize(board_ios, (int(board_ios.shape[1] * (800 / board_ios.shape[0])), 800)))
         cv2.waitKey()
         cv2.destroyAllWindows()
