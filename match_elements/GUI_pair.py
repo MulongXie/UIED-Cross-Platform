@@ -42,6 +42,20 @@ class GUIPair:
     **********************
     '''
     def popup_modal_recognition(self, height_thresh=0.15, width_thresh=0.5):
+        def is_element_modal(element, area_resize):
+            gray = cv2.cvtColor(element.clip, cv2.COLOR_BGR2GRAY)
+            area_ele = element.clip.shape[0] * element.clip.shape[1]
+            # calc the grayscale of the element
+            sum_gray_ele = np.sum(gray)
+            mean_gray_ele = sum_gray_ele / area_ele
+            # calc the grayscale of other region except the element
+            sum_gray_other = sum_gray_a - sum_gray_ele
+            mean_gray_other = sum_gray_other / (area_resize - area_ele)
+            # if the element's brightness is far higher than other regions, it should be a pop-up modal
+            if mean_gray_ele > 180 and mean_gray_other < 80:
+                return True
+            return False
+
         # calculate the mean pixel value as the brightness
         img_android_resized = cv2.resize(self.img_android, (int(self.img_android.shape[1] * (self.detection_resize_height / self.img_android.shape[0])), self.detection_resize_height))
         img_ios_resized = cv2.resize(self.img_ios, (int(self.img_ios.shape[1] * (self.detection_resize_height / self.img_ios.shape[0])), self.detection_resize_height))
@@ -56,16 +70,7 @@ class GUIPair:
                 if ele.category == 'Compo' and \
                         ele.height / ele.detection_img_size[0] > height_thresh and ele.width / ele.detection_img_size[1] > width_thresh:
                     ele.get_clip(img_android_resized)
-                    gray = cv2.cvtColor(ele.clip, cv2.COLOR_BGR2GRAY)
-                    area_ele = ele.clip.shape[0] * ele.clip.shape[1]
-                    # calc the grayscale of the element
-                    sum_gray_ele = np.sum(gray)
-                    mean_gray_ele = sum_gray_ele / area_ele
-                    # calc the grayscale of other region except the element
-                    sum_gray_other = sum_gray_a - sum_gray_ele
-                    mean_gray_other = sum_gray_other / (area_resize_a - area_ele)
-                    # if the element's brightness is far higher than other regions, it should be a pop-up modal
-                    if mean_gray_ele > 180 and mean_gray_other < 80:
+                    if is_element_modal(ele, area_resize_a):
                         self.has_popup_modal_android = True
                         ele.is_popup_modal = True
         if sum_gray_i / (img_ios_resized.shape[0] * img_ios_resized.shape[1]) < 100:
@@ -73,18 +78,11 @@ class GUIPair:
                 if ele.category == 'Compo' and \
                         ele.height / ele.detection_img_size[0] > height_thresh and ele.width / ele.detection_img_size[1] > width_thresh:
                     ele.get_clip(img_ios_resized)
-                    gray = cv2.cvtColor(ele.clip, cv2.COLOR_BGR2GRAY)
-                    area_ele = ele.clip.shape[0] * ele.clip.shape[1]
-                    # calc the grayscale of the element
-                    sum_gray_ele = np.sum(gray)
-                    mean_gray_ele = sum_gray_ele / area_ele
-                    # calc the grayscale of other region except the element
-                    sum_gray_other = sum_gray_a - sum_gray_ele
-                    mean_gray_other = sum_gray_other / (area_resize_a - area_ele)
-                    # if the element's brightness is far higher than other regions, it should be a pop-up modal
-                    if mean_gray_ele > 180 and mean_gray_other < 80:
+                    if is_element_modal(ele, area_resize_i):
                         self.has_popup_modal_ios = True
                         ele.is_popup_modal = True
+        if not self.has_popup_modal_android and not self.has_popup_modal_ios:
+            print("No popup modal")
 
     '''
     *******************************
