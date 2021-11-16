@@ -47,6 +47,8 @@ def compare_sift_or_surf(img1, img2, method, ratio=1.5, draw_match=False):
 
     # BFMatcher with default params
     bf = cv2.BFMatcher()
+    if des1 is None or des2 is None or len(des1) < 2 or len(des2) < 2:
+        return 0
     matches = bf.knnMatch(des1, des2, k=2)
     # If there's a big difference between the best and second-best matches, this to be a quality match.
     valid_matches = []
@@ -56,7 +58,7 @@ def compare_sift_or_surf(img1, img2, method, ratio=1.5, draw_match=False):
 
     if draw_match:
         board = cv2.drawMatches(img1, kp1, img2, kp2, valid_matches, None)
-        cv2.imshow('sift match', cv2.resize(board, (int(board.shape[1] * (200 / board.shape[0])), 200)))
+        cv2.imshow('sift match', cv2.resize(board, (int(board.shape[1] * (400 / board.shape[0])), 400)))
         cv2.waitKey()
         cv2.destroyWindow('sift match')
     return len(valid_matches) / len(kp2)

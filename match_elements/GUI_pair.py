@@ -134,7 +134,7 @@ class GUIPair:
         Convert detection result to Element objects
         @ det_result_data: {'elements':[], 'img_shape'}
         '''
-        class_map = {'Text': 't', 'Compo': 'c'}
+        class_map = {'Text': 't', 'Compo': 'c', 'Block': 'b'}
         for i, element in enumerate(self.det_result_data_android['compos']):
             e = Element('a' + str(i) + class_map[element['class']], 'android', element['class'], element['position'], self.det_result_data_android['img_shape'])
             if element['class'] == 'Text':
@@ -171,7 +171,13 @@ class GUIPair:
     *** Match Similar Elements ***
     ******************************
     '''
-    def match_similar_elements(self, min_similarity_img=0.75, min_similarity_text=0.8):
+    def match_similar_elements(self, min_similarity_img=0.75, min_similarity_text=0.8, img_sim_method='dhash'):
+        '''
+        @min_similarity_img: similarity threshold for Non-text elements
+        @min_similarity_text: similarity threshold for Text elements
+        @img_sim_method: the method used to calculate the similarity between two images
+            options: 'dhash', 'ssim', 'sift', 'surf'
+        '''
         for ele_a in self.elements_android:
             for ele_b in self.elements_ios:
                 # only match elements in the same category
@@ -180,7 +186,7 @@ class GUIPair:
                 # use different method to calc the similarity of of images and texts
                 if ele_a.category == 'Compo':
                     # match non-text clip through image similarity
-                    compo_similarity = match.image_similarity(ele_a.clip, ele_b.clip, method='dhash')
+                    compo_similarity = match.image_similarity(ele_a.clip, ele_b.clip, method=img_sim_method)
                     if compo_similarity > min_similarity_img:
                         self.element_matching_pairs.append((ele_a, ele_b))
                         ele_a.matched_element = ele_b
@@ -215,7 +221,7 @@ class GUIPair:
         '''
         Draw detected elements based on det_result_data
         '''
-        color_map = {'Compo': (0,255,0), 'Text': (0,0,255)}
+        color_map = {'Compo': (0,255,0), 'Text': (0,0,255), 'Block':(0,255,255)}
 
         ratio = self.img_android.shape[0] / self.det_result_data_android['img_shape'][0]
         board = self.img_android.copy()
