@@ -4,21 +4,19 @@ import numpy as np
 import os
 from numpy.random import randint as randint
 
-import tensorflow as tf
 import keras
-from keras.layers import Input, Conv2D, Lambda, merge, Dense, Flatten,MaxPooling2D
 from keras.models import Model, Sequential
 from keras.regularizers import l2
-from keras import backend as K
-from keras.optimizers import SGD,Adam
+from keras.optimizers import SGD, Adam
 from keras.losses import binary_crossentropy
-from keras.utils import plot_model
 
 
 class SiameseModel:
     def __init__(self):
-        self.data = None
         self.model = None
+        self.build_model()
+
+        self.trained_epoch_number = 0  # record how many epochs the model has been trained
 
     def build_model(self):
         # Building a sequential model
@@ -50,6 +48,14 @@ class SiameseModel:
         siamese_net.compile(loss='binary_crossentropy', optimizer=Adam(lr=0.0006))
         # plot_model(siamese_net, show_shapes=True, show_layer_names=True)
         self.model = siamese_net
+
+    def train_on_batch(self, batch_x, batch_y):
+        '''
+        :param batch_x: (2, batch_size, 100, 100, 3), image pairs
+        :param batch_y: (batch_size, 1), indicate if the pair's classes are same(1) or different(0)
+        '''
+        loss = self.model.train_on_batch(batch_x, batch_y)
+        return loss
 
 
 class SiameseData:
@@ -158,3 +164,35 @@ class SiameseData:
         # print('Training batch of X&Y shape :', np.shape(self.batch_x), 'and', np.shape(self.batch_y))
         return batch_x, batch_y
 
+    def nway_one_shot(self, model, n_way, no_of_testing_img):
+        no_of_train_classes = int(self.no_of_loaded_classes * self.train_test_split)
+        testing_classes = randint(no_of_train_classes + 1, self.no_of_loaded_classes - 1, no_of_testing_img)
+
+        n_correct = 0
+        for testing_class_0 in testing_classes:
+            testing_img_id_0 = testing_class_0 * self.no_of_loaded_images_in_each_class + randint(0,
+                                                                                                  self.no_of_loaded_images_in_each_class - 1)
+            testing_img_pairs = [np.zeros((n_way, 100, 100, 3)), np.zeros((n_way, 100, 100, 3))]
+            for k in range(n_way):
+                testing_img_pairs[0][k] = self.x[testing_img_id_0]
+                # the first pair is in the same class, the others are in different classes
+                if k == 0:
+                    testing_img_id_1 = testing_class_0 * self.no_of_loaded_images_in_each_class + randint(0,
+                                                                                                          self.no_of_loaded_images_in_each_class - 1)
+                else:
+                    testing_class_1 = np.random.choice(
+                        [j for j in range(no_of_train_classes + 1, testing_class_0)] + [j for j in
+                                                                                        range(testing_class_0 + 1,
+                                                                                              self.no_of_loaded_classes)])
+                    testing_img_id_1 = testing_class_1 * self.no_of_loaded_images_in_each_class + randint(0,
+                                                                                                          self.no_of_loaded_images_in_each_class - 1)
+                testing_img_pairs[1][k] = self.x[testing_img_id_1]
+
+            result = model.predict(testing_img_pairs)
+            result = result.flatten().tolist()
+            result_index = result.index(min(result))
+            if result_index == 0:
+                n_correct = n_correct + 1
+        print(n_correct, "correctly classified among", no_of_testing_img)
+        accuracy = (n_correct * 100) / no_of_testing_img
+        return accuracy
