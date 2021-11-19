@@ -75,17 +75,17 @@ class SiameseModel:
                     print("Achieved more than 90% Accuracy")
         return loss_list, accuracy_list
 
-    def load_model(self, model_file='E:/Mulong/Datasets/image/siamese/siamese.h5'):
+    def load_model(self, model_file='E:/Mulong/Datasets/siamese/siamese.h5'):
         self.model = load_model(model_file)
         print('Model loaded from:', model_file)
 
-    def save_model(self, save_path='E:/Mulong/Datasets/image/siamese/siamese.h5'):
+    def save_model(self, save_path='E:/Mulong/Datasets/siamese/siamese.h5'):
         self.model.save(save_path)
         print('Model save to:', save_path)
 
 
 class SiameseData:
-    def __init__(self, data_dir='E:/Mulong/Datasets/image/siamese/fruits/Training', no_of_load_images_in_each_class=10, batch_size=64, train_test_split=0.7):
+    def __init__(self, data_dir='E:/Mulong/Datasets/siamese/fruits/Training', no_of_load_images_in_each_class=10, batch_size=64, train_test_split=0.7):
         self.data_dir = data_dir
         self.x = []
         self.y = []
@@ -103,7 +103,7 @@ class SiameseData:
         self.siamese_x_batch = []  # (2, batch_size, 100, 100, 3), image pairs
         self.siamese_y_batch = []  # (batch_size, 1), indicate if the pair's classes are same(1) or different(0)
 
-    def load_data_classification(self, data_dir='E:/Mulong/Datasets/image/siamese/fruits/Training', no_of_load_images_in_each_class=10):
+    def load_data_classification(self, data_dir='E:/Mulong/Datasets/siamese/fruits/Training', no_of_load_images_in_each_class=10):
         '''
         :return:
             x: (Num of images: Num of classes x no_of_files_in_each_class, 100, 100, 3), the resized image
