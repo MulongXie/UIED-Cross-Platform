@@ -5,7 +5,7 @@ import os
 from numpy.random import randint as randint
 
 import keras
-from keras.models import Model, Sequential
+from keras.models import Model, Sequential, load_model
 from keras.regularizers import l2
 from keras.optimizers import SGD, Adam
 from keras.losses import binary_crossentropy
@@ -56,6 +56,12 @@ class SiameseModel:
         '''
         loss = self.model.train_on_batch(batch_x, batch_y)
         return loss
+
+    def load_model(self, model_file):
+        self.model = load_model(model_file)
+
+    def save_model(self, save_path='siamese.h5'):
+        self.model.save(save_path)
 
 
 class SiameseData:
