@@ -170,22 +170,16 @@ class SiameseData:
 
         n_correct = 0
         for testing_class_0 in testing_classes:
-            testing_img_id_0 = testing_class_0 * self.no_of_loaded_images_in_each_class + randint(0,
-                                                                                                  self.no_of_loaded_images_in_each_class - 1)
+            testing_img_id_0 = testing_class_0 * self.no_of_loaded_images_in_each_class + randint(0, self.no_of_loaded_images_in_each_class - 1)
             testing_img_pairs = [np.zeros((n_way, 100, 100, 3)), np.zeros((n_way, 100, 100, 3))]
             for k in range(n_way):
                 testing_img_pairs[0][k] = self.x[testing_img_id_0]
                 # the first pair is in the same class, the others are in different classes
                 if k == 0:
-                    testing_img_id_1 = testing_class_0 * self.no_of_loaded_images_in_each_class + randint(0,
-                                                                                                          self.no_of_loaded_images_in_each_class - 1)
+                    testing_img_id_1 = testing_class_0 * self.no_of_loaded_images_in_each_class + randint(0, self.no_of_loaded_images_in_each_class - 1)
                 else:
-                    testing_class_1 = np.random.choice(
-                        [j for j in range(no_of_train_classes + 1, testing_class_0)] + [j for j in
-                                                                                        range(testing_class_0 + 1,
-                                                                                              self.no_of_loaded_classes)])
-                    testing_img_id_1 = testing_class_1 * self.no_of_loaded_images_in_each_class + randint(0,
-                                                                                                          self.no_of_loaded_images_in_each_class - 1)
+                    testing_class_1 = np.random.choice([j for j in range(no_of_train_classes + 1, testing_class_0)] + [j for j in range(testing_class_0 + 1, self.no_of_loaded_classes)])
+                    testing_img_id_1 = testing_class_1 * self.no_of_loaded_images_in_each_class + randint(0, self.no_of_loaded_images_in_each_class - 1)
                 testing_img_pairs[1][k] = self.x[testing_img_id_1]
 
             result = model.predict(testing_img_pairs)
