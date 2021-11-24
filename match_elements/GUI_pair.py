@@ -2,6 +2,7 @@ import cv2
 import json
 import os
 import numpy as np
+import time
 from os.path import join as pjoin
 from random import randint as rint
 
@@ -178,26 +179,39 @@ class GUIPair:
         @img_sim_method: the method used to calculate the similarity between two images
             options: 'dhash', 'ssim', 'sift', 'surf'
         '''
+        start = time.clock()
+        mark = np.full(len(self.elements_ios), False)
+        count = 0
         for ele_a in self.elements_android:
-            for ele_b in self.elements_ios:
+            for j, ele_b in enumerate(self.elements_ios):
                 # only match elements in the same category
                 if ele_b.matched_element is not None or ele_a.category != ele_b.category:
+                    continue
+                if mark[j] or \
+                        max(ele_a.height, ele_b.height) / min(ele_a.height, ele_b.height) > 2 or max(ele_a.width, ele_b.width) / min(ele_a.width, ele_b.width) > 2:
                     continue
                 # use different method to calc the similarity of of images and texts
                 if ele_a.category == 'Compo':
                     # match non-text clip through image similarity
                     compo_similarity = match.image_similarity(ele_a.clip, ele_b.clip, method=img_sim_method)
+                    count += 1
                     if compo_similarity > min_similarity_img:
                         self.element_matching_pairs.append((ele_a, ele_b))
                         ele_a.matched_element = ele_b
                         ele_b.matched_element = ele_a
+                        mark[j] = True
+                        break
                 elif ele_a.category == 'Text':
                     # match text by through string similarity
                     text_similarity = match.text_similarity(ele_a.text_content, ele_b.text_content)
+                    count += 1
                     if text_similarity > min_similarity_text:
                         self.element_matching_pairs.append((ele_a, ele_b))
                         ele_a.matched_element = ele_b
                         ele_b.matched_element = ele_a
+                        mark[j] = True
+                        break
+        print('[Similar Elements Matching %.3fs] Total operation: %d' % ((time.clock() - start), count))
 
     '''
     *********************
