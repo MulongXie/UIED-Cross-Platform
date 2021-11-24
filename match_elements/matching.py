@@ -66,6 +66,10 @@ def compare_sift_or_surf(img1, img2, method, ratio=1.5, draw_match=False):
 
 def image_similarity(img1, img2, method='dhash', is_gray=False,
                      draw_match=False, match_distance_ratio=1.5):
+    '''
+    @method: the way to calculate the similarity between two images
+        opt - dhash, ssim, sift, surf
+    '''
     similarity = -1  # from 0 to 1
     if method == 'dhash':
         h1 = dhash(img1)
