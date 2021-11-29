@@ -22,12 +22,12 @@ class GUIPair:
         self.img_path_android = pjoin(input_dir, 'A' + ui_name + '.jpg')
         self.img_android = cv2.imread(self.img_path_android)
         self.det_result_imgs_android = {'text': None, 'non-text': None, 'merge': None}  # image visualization for different stages
-        self.det_result_data_android = None  # {'elements':[], 'img_shape'}
+        self.det_result_data_android = None  # {'compos':[], 'img_shape'}
         # for ios GUI
         self.img_path_ios = pjoin(input_dir, 'I' + ui_name + '.png')
         self.img_ios = cv2.imread(self.img_path_ios)
         self.det_result_imgs_ios = {'text': None, 'non-text': None, 'merge': None}      # image visualization for different stages
-        self.det_result_data_ios = None     # {'elements':[], 'img_shape'}
+        self.det_result_data_ios = None     # {'compos':[], 'img_shape'}
 
         self.elements_android = []          # list of Element objects for android UI
         self.elements_ios = []              # list of Element objects for ios UI
