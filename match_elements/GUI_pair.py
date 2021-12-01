@@ -184,6 +184,8 @@ class GUIPair:
         '''
         if del_prev:
             self.element_matching_pairs = []
+            for ele in self.elements_ios + self.elements_android:
+                ele.matched_element = None
 
         start = time.clock()
         if img_sim_method == 'resnet':
