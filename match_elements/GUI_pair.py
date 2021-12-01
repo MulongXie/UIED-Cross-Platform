@@ -222,7 +222,7 @@ class GUIPair:
                         break
         print('[Similar Elements Matching %.3fs] Paired Text:%d, Paired Compos:%d' % ((time.clock() - start), n_compos, n_texts))
 
-    def save_matched_element_pairs_clips(self, category='Compo', start_file_id=None, rm_exit=False, output_dir='data/output/matchedCompos'):
+    def save_matched_element_pairs_clips(self, category='Compo', start_file_id=None, rm_exit=False, output_dir='data/output/matched_compos'):
         '''
         Save the clips of matched element pairs
         @category: "Compo" or "Text"
