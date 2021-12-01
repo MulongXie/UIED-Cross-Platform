@@ -67,7 +67,7 @@ def compare_sift_or_surf(img1, img2, method, ratio=1.5, draw_match=False):
 
 
 def image_similarity(img1, img2, method='dhash', is_gray=False,
-                     draw_match=False, match_distance_ratio=1.5):
+                     draw_match=False, match_distance_ratio=1.5, resnet_model=None):
     '''
     @method: the way to calculate the similarity between two images
         opt - dhash, ssim, sift, surf, resnet
@@ -95,12 +95,10 @@ def image_similarity(img1, img2, method='dhash', is_gray=False,
     elif method == 'surf':
         similarity = compare_sift_or_surf(img1, img2, 'surf', match_distance_ratio, draw_match=draw_match)
     elif method == 'resnet':
-        from keras.applications.resnet50 import ResNet50
         shape = (32, 32)
         img1 = cv2.resize(img1, shape)
         img2 = cv2.resize(img2, shape)
-        resnet = ResNet50(include_top=False, input_shape=img1.shape)
-        encodings = resnet.predict(np.array([img1, img2]))
+        encodings = resnet_model.predict(np.array([img1, img2]))
         encodings = encodings.reshape((encodings.shape[0], -1))
         similarity = cosine_similarity([encodings[0]], [encodings[1]])[0][0]
     return similarity

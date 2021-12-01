@@ -182,6 +182,12 @@ class GUIPair:
             options: 'dhash', 'ssim', 'sift', 'surf'
         '''
         start = time.clock()
+        if img_sim_method == 'resnet':
+            from keras.applications.resnet50 import ResNet50
+            resnet_model = ResNet50(include_top=False, input_shape=(32, 32, 3))
+        else:
+            resnet_model = None
+
         mark = np.full(len(self.elements_ios), False)
         n_compos = 0
         n_texts = 0
@@ -196,7 +202,7 @@ class GUIPair:
                 # use different method to calc the similarity of of images and texts
                 if ele_a.category == 'Compo':
                     # match non-text clip through image similarity
-                    compo_similarity = match.image_similarity(ele_a.clip, ele_b.clip, method=img_sim_method)
+                    compo_similarity = match.image_similarity(ele_a.clip, ele_b.clip, method=img_sim_method, resnet_model=resnet_model)
                     if compo_similarity > min_similarity_img:
                         n_compos += 1
                         self.element_matching_pairs.append((ele_a, ele_b))
