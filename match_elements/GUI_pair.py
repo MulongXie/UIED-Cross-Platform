@@ -174,13 +174,17 @@ class GUIPair:
     *** Match Similar Elements ***
     ******************************
     '''
-    def match_similar_elements(self, min_similarity_img=0.75, min_similarity_text=0.8, img_sim_method='dhash'):
+    def match_similar_elements(self, min_similarity_img=0.75, min_similarity_text=0.8, img_sim_method='dhash', del_prev=True):
         '''
         @min_similarity_img: similarity threshold for Non-text elements
         @min_similarity_text: similarity threshold for Text elements
         @img_sim_method: the method used to calculate the similarity between two images
             options: 'dhash', 'ssim', 'sift', 'surf'
+        @del_prev: if to delete all previously matched compos
         '''
+        if del_prev:
+            self.element_matching_pairs = []
+
         start = time.clock()
         if img_sim_method == 'resnet':
             from keras.applications.resnet50 import ResNet50
@@ -220,7 +224,7 @@ class GUIPair:
                         ele_b.matched_element = ele_a
                         mark[j] = True
                         break
-        print('[Similar Elements Matching %.3fs] Paired Text:%d, Paired Compos:%d' % ((time.clock() - start), n_compos, n_texts))
+        print('[Similar Elements Matching %.3fs] Method:%s Paired Text:%d, Paired Compos:%d' % ((time.clock() - start), img_sim_method, n_compos, n_texts))
 
     def save_matched_element_pairs_clips(self, category='Compo', start_file_id=None, rm_exit=False, output_dir='data/output/matched_compos'):
         '''
