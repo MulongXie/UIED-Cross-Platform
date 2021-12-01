@@ -242,7 +242,7 @@ class GUIPair:
         os.makedirs(output_dir, exist_ok=True)
         if start_file_id is None:
             files = glob(pjoin(output_dir, '*'))
-            file_ids = [int(f.split('\\')[-1].split('_')[0]) for f in files]
+            file_ids = [int(f.replace('\\', '/').split('/')[-1].split('_')[0]) for f in files]
             start_file_id = max(file_ids) if len(file_ids) > 0 else 0
 
         for pair in self.element_matching_pairs:
