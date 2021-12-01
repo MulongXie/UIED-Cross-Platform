@@ -3,8 +3,10 @@ import json
 import os
 import numpy as np
 import time
+import shutil
 from os.path import join as pjoin
 from random import randint as rint
+from glob import glob
 
 from match_elements.Element import Element
 import match_elements.matching as match
@@ -181,7 +183,8 @@ class GUIPair:
         '''
         start = time.clock()
         mark = np.full(len(self.elements_ios), False)
-        count = 0
+        n_compos = 0
+        n_texts = 0
         for ele_a in self.elements_android:
             for j, ele_b in enumerate(self.elements_ios):
                 # only match elements in the same category
@@ -194,8 +197,8 @@ class GUIPair:
                 if ele_a.category == 'Compo':
                     # match non-text clip through image similarity
                     compo_similarity = match.image_similarity(ele_a.clip, ele_b.clip, method=img_sim_method)
-                    count += 1
                     if compo_similarity > min_similarity_img:
+                        n_compos += 1
                         self.element_matching_pairs.append((ele_a, ele_b))
                         ele_a.matched_element = ele_b
                         ele_b.matched_element = ele_a
@@ -204,14 +207,40 @@ class GUIPair:
                 elif ele_a.category == 'Text':
                     # match text by through string similarity
                     text_similarity = match.text_similarity(ele_a.text_content, ele_b.text_content)
-                    count += 1
                     if text_similarity > min_similarity_text:
+                        n_texts += 1
                         self.element_matching_pairs.append((ele_a, ele_b))
                         ele_a.matched_element = ele_b
                         ele_b.matched_element = ele_a
                         mark[j] = True
                         break
-        print('[Similar Elements Matching %.3fs] Total operation: %d' % ((time.clock() - start), count))
+        print('[Similar Elements Matching %.3fs] Paired Text:%d, Paired Compos:%d' % ((time.clock() - start), n_compos, n_texts))
+
+    def save_matched_element_pairs_clips(self, category='Compo', start_file_id=None, rm_exit=False, output_dir='data/output/matchedCompos'):
+        '''
+        Save the clips of matched element pairs
+        @category: "Compo" or "Text"
+        @start_file_id: where the saved clip file name start with
+        @rm_exit: if remove all previously saved clips
+        @output_dir: the root directory for saving
+        '''
+        if len(self.element_matching_pairs) == 0:
+            print('No similar compos matched, run match_similar_elements first')
+            return
+        if rm_exit:
+            shutil.rmtree(output_dir)
+        os.makedirs(output_dir, exist_ok=True)
+        if start_file_id is None:
+            files = glob(pjoin(output_dir, '*'))
+            file_ids = [int(f.split('\\')[-1].split('_')[0]) for f in files]
+            start_file_id = max(file_ids) if len(file_ids) > 0 else 0
+
+        for pair in self.element_matching_pairs:
+            if pair[0].category == category:
+                cv2.imwrite(pjoin(output_dir, str(start_file_id) + '_a.jpg'), pair[0].clip)
+                cv2.imwrite(pjoin(output_dir, str(start_file_id) + '_i.jpg'), pair[1].clip)
+            start_file_id += 1
+        print('Save matched compo pairs to', output_dir)
 
     '''
     *********************
