@@ -120,10 +120,9 @@ def text_filter_noise(texts):
     return valid_texts
 
 
-def text_detection_google(input_file='../data/input/30800.jpg', output_file='../data/output', show=False):
+def text_detection_google(input_file='../data/input/30800.jpg', ocr_root='../data/output', show=False):
     start = time.clock()
     name = input_file.split('/')[-1][:-4]
-    ocr_root = pjoin(output_file, 'ocr')
     img = cv2.imread(input_file)
 
     ocr_result = ocr.ocr_detection_google(input_file)
@@ -147,10 +146,9 @@ def text_cvt_orc_format_paddle(paddle_result):
     return texts
 
 
-def text_detection_paddle(input_file='../data/input/30800.jpg', output_file='../data/output', show=False, paddle_cor=None):
+def text_detection_paddle(input_file='../data/input/30800.jpg', ocr_root='../data/output', show=False, paddle_cor=None):
     start = time.clock()
     name = input_file.replace('\\', '/').split('/')[-1][:-4]
-    ocr_root = pjoin(output_file, 'ocr')
     img = cv2.imread(input_file)
 
     if paddle_cor is None:
@@ -164,10 +162,9 @@ def text_detection_paddle(input_file='../data/input/30800.jpg', output_file='../
     return board
 
 
-def text_detection_longce(input_file='../data/input/A0001.jpg', output_file='../data/output', show=False):
+def text_detection_longce(input_file='../data/input/A0001.jpg', ocr_root='../data/output/ocr', show=False):
     post_url = "http://61.177.48.150:5222/ocr/recognition_text"
     name = input_file.replace('\\', '/').split('/')[-1][:-4]
-    ocr_root = pjoin(output_file, 'ocr')
     img = cv2.imread(input_file)
     start = time.clock()
 
