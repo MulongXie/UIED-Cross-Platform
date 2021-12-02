@@ -92,19 +92,23 @@ class GUIPair:
     *** Detect or Load Elements ***
     *******************************
     '''
-    def element_detection(self, is_text=True, is_nontext=True, is_merge=True):
+    def element_detection(self, is_text=True, is_nontext=True, is_merge=True, paddle_cor=None):
         if is_text:
+            os.makedirs(pjoin(self.output_dir, 'ocr'), exist_ok=True)
             import detect_text.text_detection as text
-            from paddleocr import PaddleOCR
-            paddle_cor = PaddleOCR(use_angle_cls=True, lang="ch")
-            self.det_result_imgs_android['text'] = text.text_detection_paddle(self.img_path_android, self.output_dir, paddle_cor=paddle_cor)
-            self.det_result_imgs_ios['text'] = text.text_detection_paddle(self.img_path_ios, self.output_dir, paddle_cor=paddle_cor)
+            if not paddle_cor:
+                from paddleocr import PaddleOCR
+                paddle_cor = PaddleOCR(use_angle_cls=True, lang="ch")
+            self.det_result_imgs_android['text'] = text.text_detection_paddle(self.img_path_android, pjoin(self.output_dir, 'ocr'), paddle_cor=paddle_cor)
+            self.det_result_imgs_ios['text'] = text.text_detection_paddle(self.img_path_ios, pjoin(self.output_dir, 'ocr'), paddle_cor=paddle_cor)
         if is_nontext:
+            os.makedirs(pjoin(self.output_dir, 'ip'), exist_ok=True)
             import detect_compo.ip_region_proposal as ip
             key_params = {'min-grad': 6, 'ffl-block': 5, 'min-ele-area': 100, 'merge-contained-ele': True}
             self.det_result_imgs_android['non-text'] = ip.compo_detection(self.img_path_android, self.output_dir, key_params, resize_by_height=self.detection_resize_height, adaptive_binarization=False)
             self.det_result_imgs_ios['non-text'] = ip.compo_detection(self.img_path_ios, self.output_dir, key_params, resize_by_height=self.detection_resize_height, adaptive_binarization=False)
         if is_merge:
+            os.makedirs(pjoin(self.output_dir, 'merge'), exist_ok=True)
             import detect_merge.merge as merge
             # for android GUI
             compo_path = pjoin(self.output_dir, 'ip', 'A' + str(self.ui_name) + '.json')
