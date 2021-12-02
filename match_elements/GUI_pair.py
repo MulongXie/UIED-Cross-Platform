@@ -13,20 +13,20 @@ import match_elements.matching as match
 
 
 class GUIPair:
-    def __init__(self, ui_name, input_dir='data/input', output_dir='data/output', detection_resize_height=900):
-
+    def __init__(self, ui_name, input_dir='data/input', output_dir='data/output', detection_resize_height=900,
+                 img_path_android=None, img_path_ios=None):
         self.ui_name = ui_name
         self.input_dir = input_dir
         self.output_dir = output_dir
 
         self.detection_resize_height = detection_resize_height  # resize the input gui while detecting
         # for android GUI
-        self.img_path_android = pjoin(input_dir, 'A' + ui_name + '.jpg')
+        self.img_path_android = pjoin(input_dir, 'A' + ui_name + '.jpg') if not img_path_android else img_path_android
         self.img_android = cv2.imread(self.img_path_android)
         self.det_result_imgs_android = {'text': None, 'non-text': None, 'merge': None}  # image visualization for different stages
         self.det_result_data_android = None  # {'compos':[], 'img_shape'}
         # for ios GUI
-        self.img_path_ios = pjoin(input_dir, 'I' + ui_name + '.png')
+        self.img_path_ios = pjoin(input_dir, 'I' + ui_name + '.png') if not img_path_ios else img_path_ios
         self.img_ios = cv2.imread(self.img_path_ios)
         self.det_result_imgs_ios = {'text': None, 'non-text': None, 'merge': None}      # image visualization for different stages
         self.det_result_data_ios = None     # {'compos':[], 'img_shape'}
