@@ -104,7 +104,7 @@ class GUIPair:
         if is_nontext:
             os.makedirs(pjoin(self.output_dir, 'ip'), exist_ok=True)
             import detect_compo.ip_region_proposal as ip
-            key_params = {'min-grad': 6, 'ffl-block': 5, 'min-ele-area': 100, 'merge-contained-ele': True}
+            key_params = {'min-grad': 6, 'ffl-block': 5, 'min-ele-area': 100, 'merge-contained-ele': False}
             self.det_result_imgs_android['non-text'] = ip.compo_detection(self.img_path_android, self.output_dir, key_params, resize_by_height=self.detection_resize_height, adaptive_binarization=False)
             self.det_result_imgs_ios['non-text'] = ip.compo_detection(self.img_path_ios, self.output_dir, key_params, resize_by_height=self.detection_resize_height, adaptive_binarization=False)
         if is_merge:
@@ -230,7 +230,7 @@ class GUIPair:
                         ele_b.matched_element = ele_a
                         mark[j] = True
                         break
-        print('[Similar Elements Matching %.3fs] Method:%s Paired Text:%d, Paired Compos:%d' % ((time.clock() - start), img_sim_method, n_compos, n_texts))
+        print('[Similar Elements Matching %.3fs] Method:%s Paired Text:%d, Paired Compos:%d' % ((time.clock() - start), img_sim_method, n_texts, n_compos))
 
     def save_matched_element_pairs_clips(self, category='Compo', start_file_id=None, rm_exit=False, output_dir='data/output/matched_compos'):
         '''
@@ -249,14 +249,13 @@ class GUIPair:
         if start_file_id is None:
             files = glob(pjoin(output_dir, '*'))
             file_ids = [int(f.replace('\\', '/').split('/')[-1].split('_')[0]) for f in files]
-            start_file_id = max(file_ids) if len(file_ids) > 0 else 0
+            start_file_id = max(file_ids) + 1 if len(file_ids) > 0 else 0
 
         for pair in self.element_matching_pairs:
             if pair[0].category == category:
                 cv2.imwrite(pjoin(output_dir, str(start_file_id) + '_a.jpg'), pair[0].clip)
                 cv2.imwrite(pjoin(output_dir, str(start_file_id) + '_i.jpg'), pair[1].clip)
-            start_file_id += 1
-        print('Save matched compo pairs to', output_dir)
+                start_file_id += 1
 
     '''
     *********************
