@@ -178,13 +178,14 @@ class GUIPair:
     *** Match Similar Elements ***
     ******************************
     '''
-    def match_similar_elements(self, min_similarity_img=0.75, min_similarity_text=0.8, img_sim_method='dhash', del_prev=True):
+    def match_similar_elements(self, min_similarity_img=0.75, min_similarity_text=0.8, img_sim_method='dhash', del_prev=True, resnet_model=None):
         '''
         @min_similarity_img: similarity threshold for Non-text elements
         @min_similarity_text: similarity threshold for Text elements
         @img_sim_method: the method used to calculate the similarity between two images
             options: 'dhash', 'ssim', 'sift', 'surf'
         @del_prev: if to delete all previously matched compos
+        @resnet_model: pre-loaded resnet model
         '''
         if del_prev:
             self.element_matching_pairs = []
@@ -192,11 +193,9 @@ class GUIPair:
                 ele.matched_element = None
 
         start = time.clock()
-        if img_sim_method == 'resnet':
+        if img_sim_method == 'resnet' and resnet_model is None:
             from keras.applications.resnet50 import ResNet50
             resnet_model = ResNet50(include_top=False, input_shape=(32, 32, 3))
-        else:
-            resnet_model = None
 
         mark = np.full(len(self.elements_ios), False)
         n_compos = 0
