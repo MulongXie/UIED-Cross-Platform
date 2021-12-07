@@ -98,6 +98,9 @@ def image_similarity(img1, img2, method='dhash', is_gray=False,
         shape = (32, 32)
         img1 = cv2.resize(img1, shape)
         img2 = cv2.resize(img2, shape)
+        if resnet_model is None:
+            from keras.applications.resnet50 import ResNet50
+            resnet_model = ResNet50(include_top=False, input_shape=(32, 32, 3))
         encodings = resnet_model.predict(np.array([img1, img2]))
         encodings = encodings.reshape((encodings.shape[0], -1))
         similarity = cosine_similarity([encodings[0]], [encodings[1]])[0][0]
