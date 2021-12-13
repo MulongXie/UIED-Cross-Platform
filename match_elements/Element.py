@@ -10,6 +10,7 @@ class Element:
         self.col_min, self.row_min, self.col_max, self.row_max = int(position['column_min']), int(position['row_min']), int(position['column_max']), int(position['row_max'])
         self.width = self.col_max - self.col_min
         self.height = self.row_max - self.row_min
+        self.aspect_ratio = round(self.width / self.height, 3)
         self.area = self.width * self.height
 
         self.detection_img_size = img_size    # the size of the resized image while detection
@@ -22,6 +23,7 @@ class Element:
     def init_bound(self):
         self.width = self.col_max - self.col_min
         self.height = self.row_max - self.row_min
+        self.aspect_ratio = round(self.width / self.height)
         self.area = self.width * self.height
 
     def get_clip(self, org_img):

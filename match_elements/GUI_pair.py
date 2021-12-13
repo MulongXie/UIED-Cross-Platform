@@ -178,10 +178,12 @@ class GUIPair:
     *** Match Similar Elements ***
     ******************************
     '''
-    def match_similar_elements(self, min_similarity_img=0.75, min_similarity_text=0.8, img_sim_method='dhash', del_prev=True, resnet_model=None):
+    def match_similar_elements(self, min_similarity_img=0.75, min_similarity_text=0.8, pair_shape_thresh=1.5,
+                               img_sim_method='dhash', del_prev=True, resnet_model=None):
         '''
         @min_similarity_img: similarity threshold for Non-text elements
         @min_similarity_text: similarity threshold for Text elements
+        @pair_shape_thresh: shape difference threshold for a matched compo pair
         @img_sim_method: the method used to calculate the similarity between two images
             options: 'dhash', 'ssim', 'sift', 'surf'
         @del_prev: if to delete all previously matched compos
@@ -205,8 +207,10 @@ class GUIPair:
                 # only match elements in the same category
                 if ele_b.matched_element is not None or ele_a.category != ele_b.category:
                     continue
+                # filter out some impossible pairs
                 if mark[j] or \
-                        max(ele_a.height, ele_b.height) / min(ele_a.height, ele_b.height) > 2 or max(ele_a.width, ele_b.width) / min(ele_a.width, ele_b.width) > 2:
+                        max(ele_a.height, ele_b.height) / min(ele_a.height, ele_b.height) > pair_shape_thresh or max(ele_a.width, ele_b.width) / min(ele_a.width, ele_b.width) > pair_shape_thresh or \
+                        max(ele_a.aspect_ratio, ele_b.aspect_ratio) / min(ele_a.aspect_ratio, ele_b.aspect_ratio) > pair_shape_thresh:
                     continue
                 # use different method to calc the similarity of of images and texts
                 if ele_a.category == 'Compo':
