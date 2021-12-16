@@ -10,6 +10,7 @@ from glob import glob
 
 from match_elements.Element import Element
 import match_elements.matching as match
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class GUIPair:
@@ -234,6 +235,67 @@ class GUIPair:
                         mark[j] = True
                         break
         print('[Similar Elements Matching %.3fs] Method:%s Paired Text:%d, Paired Compos:%d' % ((time.clock() - start), img_sim_method, n_texts, n_compos))
+
+    def match_similar_elements_resnet(self, min_similarity_img=0.75, min_similarity_text=0.8, pair_shape_thresh=1.5, del_prev=True, resnet_model=None):
+        '''
+        @min_similarity_img: similarity threshold for Non-text elements
+        @min_similarity_text: similarity threshold for Text elements
+        @pair_shape_thresh: shape difference threshold for a matched compo pair
+        @del_prev: if to delete all previously matched compos
+        @resnet_model: pre-loaded resnet model
+        '''
+        if del_prev:
+            self.element_matching_pairs = []
+            for ele in self.elements_ios + self.elements_android:
+                ele.matched_element = None
+
+        start = time.clock()
+        clips = []
+        no_type_1 = 0
+        for ele in self.elements_android + self.elements_ios:
+            if ele.category == 'Compo':
+                clips.append(cv2.resize(ele.clip, (32, 32)))
+                if ele.ui_type == 'android': no_type_1 += 1
+        encodings = resnet_model.predict(np.array(clips))
+        encodings = encodings.reshape((encodings.shape[0], -1))
+        encodings_1 = encodings[:no_type_1]
+        encodings_2 = encodings[no_type_1:]
+
+        mark = np.full(len(self.elements_ios), False)
+        n_compos = 0
+        n_texts = 0
+        for i, ele_a in enumerate(self.elements_android):
+            candidates = []
+            for j, ele_b in enumerate(self.elements_ios):
+                # only match elements in the same category
+                if ele_b.matched_element is not None or ele_a.category != ele_b.category:
+                    continue
+                # filter out some impossible pairs
+                if mark[j] or \
+                        max(ele_a.height, ele_b.height) / min(ele_a.height, ele_b.height) > pair_shape_thresh or max(ele_a.width, ele_b.width) / min(ele_a.width, ele_b.width) > pair_shape_thresh or \
+                        max(ele_a.aspect_ratio, ele_b.aspect_ratio) / min(ele_a.aspect_ratio, ele_b.aspect_ratio) > pair_shape_thresh:
+                    continue
+                # use different method to calc the similarity of of images and texts
+                if ele_a.category == 'Compo':
+                    # match non-text clip through image similarity
+                    compo_similarity = cosine_similarity([encodings_1[i]], [encodings_2[j]])[0][0]
+                    if compo_similarity > min_similarity_img:
+                        candidates.append((j, compo_similarity))
+                elif ele_a.category == 'Text':
+                    # match text by through string similarity
+                    text_similarity = match.text_similarity(ele_a.text_content, ele_b.text_content)
+                    if text_similarity > min_similarity_text:
+                        candidates.append((j, text_similarity))
+            if len(candidates) > 0:
+                if ele_a.category == 'Compo': n_compos += 1
+                else: n_texts += 1
+                max_sim_ele = max(candidates, key=lambda x: x[1])
+                ele_b = self.elements_ios[max_sim_ele[0]]
+                self.element_matching_pairs.append((ele_a, ele_b))
+                ele_a.matched_element = ele_b
+                ele_b.matched_element = ele_a
+                mark[max_sim_ele[0]] = True
+        print('[Similar Elements Matching %.3fs] Method:Resnet Paired Text:%d, Paired Compos:%d' % ((time.clock() - start), n_texts, n_compos))
 
     def save_matched_element_pairs_clips(self, category='Compo', start_file_id=None, rm_exit=False, output_dir='data/output/matched_compos'):
         '''
