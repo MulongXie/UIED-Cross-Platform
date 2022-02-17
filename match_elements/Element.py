@@ -13,12 +13,16 @@ class Element:
         self.aspect_ratio = round(self.width / self.height, 3)
         self.area = self.width * self.height
 
+        self.children = None    # contained elements within it
+        self.parent = None      # parent element
+
         self.detection_img_size = img_size    # the size of the resized image while detection
         self.clip = None
 
         self.ui_type = ui_type          # android/ios
         self.matched_element = None     # the matched Element in another ui
         self.is_popup_modal = False     # if the element is popup modal
+        self.is_screen = False
 
     def init_bound(self):
         self.width = self.col_max - self.col_min

@@ -18,21 +18,31 @@ class GUI:
         self.img_path = img_path
         self.ui_name = img_path.replace('\\', '/').split('/')[-1].split('.')[0]
         self.output_dir = output_dir
+        self.img = cv2.imread(self.img_path)
 
         self.detection_resize_height = detection_resize_height  # resize the input gui while detecting
-        self.img = cv2.imread(self.img_path)
+        self.detection_resize_width = int(self.img.shape[1] * (self.detection_resize_height / self.img.shape[0]))
         self.det_result_imgs = {'text': None, 'non-text': None, 'merge': None}  # image visualization for different stages
         self.det_result_data = None         # {'compos':[], 'img_shape'}
 
         self.elements = []                  # list of Element objects for android UI
         self.elements_mapping = {}          # {'id': Element}
         self.has_popup_modal = False        # if the ui has popup modal
+        self.screen = None
 
     '''
     **********************
     *** GUI Operations ***
     **********************
     '''
+    def phone_screen_recognition(self):
+        for e in self.elements:
+            if e.height / self.detection_resize_height > 0.5 and e.width / self.detection_resize_width > 0.5:
+                if e.parent is None and e.children is not None:
+                    e.is_screen = True
+                    self.screen = e
+                    return
+
     def popup_modal_recognition(self, height_thresh=0.15, width_thresh=0.5):
         def is_element_modal(element, area_resize):
             gray = cv2.cvtColor(element.clip, cv2.COLOR_BGR2GRAY)
@@ -49,7 +59,7 @@ class GUI:
             return False
 
         # calculate the mean pixel value as the brightness
-        img_resized = cv2.resize(self.img, (int(self.img.shape[1] * (self.detection_resize_height / self.img.shape[0])), self.detection_resize_height))
+        img_resized = cv2.resize(self.img, (self.detection_resize_width, self.detection_resize_height))
         area_resize = img_resized.shape[0] * img_resized.shape[1]
 
         sum_gray_a = np.sum(cv2.cvtColor(img_resized, cv2.COLOR_BGR2GRAY))
@@ -114,6 +124,10 @@ class GUI:
             e = Element(str(i) + class_map[element['class']], 'android', element['class'], element['position'], self.det_result_data['img_shape'])
             if element['class'] == 'Text':
                 e.text_content = element['text_content']
+            if 'children' in element:
+                e.children = element['children']
+            if 'parent' in element:
+                e.parent = element['parent']
             e.get_clip(self.img)
             self.elements.append(e)
             self.elements_mapping[e.id] = e
@@ -133,10 +147,10 @@ class GUI:
     '''
     def show_detection_result(self):
         if self.det_result_imgs['merge'] is not None:
-            cv2.imshow('det', cv2.resize(self.det_result_imgs['merge'], (int(self.img.shape[1] * (800 / self.img.shape[0])), 800)))
+            cv2.imshow('det', cv2.resize(self.det_result_imgs['merge'], (self.detection_resize_width, self.detection_resize_height)))
         elif self.det_result_data is not None:
             self.draw_detection_result()
-            cv2.imshow('det', cv2.resize(self.det_result_imgs['merge'], (int(self.img.shape[1] * (800 / self.img.shape[0])), 800)))
+            cv2.imshow('det', cv2.resize(self.det_result_imgs['merge'], (self.detection_resize_width, self.detection_resize_height)))
         else:
             print('No detection result, run element_detection() or load_detection_result() first')
         cv2.waitKey()
@@ -156,11 +170,19 @@ class GUI:
 
     def draw_popup_modal(self):
         if self.has_popup_modal:
-            board_android = self.img.copy()
+            board = self.img.copy()
             for ele in self.elements:
                 if ele.is_popup_modal:
-                    ele.draw_element(board_android, color=(0,0,255), line=5, show_id=False)
-            cv2.putText(board_android, 'popup modal', (5, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,255), 3)
-            cv2.imshow('android', cv2.resize(board_android, (int(board_android.shape[1] * (800 / board_android.shape[0])), 800)))
+                    ele.draw_element(board, color=(0,0,255), line=5, show_id=False)
+            cv2.putText(board, 'popup modal', (5, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,255), 3)
+            cv2.imshow('modal', cv2.resize(board, (self.detection_resize_width, self.detection_resize_height)))
+            cv2.waitKey()
+            cv2.destroyAllWindows()
+
+    def draw_screen(self):
+        if self.screen is not None:
+            board = self.img.copy()
+            self.screen.draw_element(board, color=(255,0,255), line=5, show_id=False)
+            cv2.imshow('screen', cv2.resize(board, (self.detection_resize_width, self.detection_resize_height)))
             cv2.waitKey()
             cv2.destroyAllWindows()
