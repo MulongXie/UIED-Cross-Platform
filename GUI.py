@@ -121,7 +121,7 @@ class GUI:
         '''
         class_map = {'Text': 't', 'Compo': 'c', 'Block': 'b'}
         for i, element in enumerate(self.det_result_data['compos']):
-            e = Element(str(i) + class_map[element['class']], 'android', element['class'], element['position'], self.det_result_data['img_shape'])
+            e = Element(str(i) + class_map[element['class']], element['class'], element['position'], self.det_result_data['img_shape'])
             if element['class'] == 'Text':
                 e.text_content = element['text_content']
             if 'children' in element:
@@ -167,6 +167,7 @@ class GUI:
         for i, element in enumerate(self.elements):
             element.draw_element(board, ratio, color_map[element.category], show_id=show_id)
         self.det_result_imgs['merge'] = board.copy()
+        return self.det_result_imgs['merge']
 
     def draw_popup_modal(self):
         if self.has_popup_modal:

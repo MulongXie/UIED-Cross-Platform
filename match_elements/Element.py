@@ -2,7 +2,7 @@ import cv2
 
 
 class Element:
-    def __init__(self, element_id, ui_type, category, position, img_size, text_content=None):
+    def __init__(self, element_id, category, position, img_size, text_content=None):
         self.id = element_id
         self.category = category        # Compo / Text
         self.text_content = text_content
@@ -19,10 +19,9 @@ class Element:
         self.detection_img_size = img_size    # the size of the resized image while detection
         self.clip = None
 
-        self.ui_type = ui_type          # android/ios
         self.matched_element = None     # the matched Element in another ui
         self.is_popup_modal = False     # if the element is popup modal
-        self.is_screen = False
+        self.is_screen = False          # if the element is phone screen
 
     def init_bound(self):
         self.width = self.col_max - self.col_min
